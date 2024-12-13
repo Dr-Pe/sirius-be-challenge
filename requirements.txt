@@ -3,3 +3,6 @@ sqlmodel
 pyjwt
 passlib[bcrypt]
 boto3
+minio
+pydantic-settings
+python-dotenv
