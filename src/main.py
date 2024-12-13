@@ -7,6 +7,8 @@ from sqlmodel import select
 import models
 from db import SessionDep, create_db_and_tables
 from security import authenticate_user, create_access_token, get_password_hash, get_current_user
+from minio_client import MinioClient
+from settings import SETTINGS
 
 app = FastAPI()
 
@@ -54,3 +56,8 @@ async def get_users(session: SessionDep) -> list[models.User]:
 @app.get("/users/me/")
 async def get_users_me(current_user: Annotated[models.User, Depends(get_current_user)]) -> models.User:
     return current_user.clean()
+
+@app.post("/files/")
+async def post_file(filepath: str, filename: str):
+    client = MinioClient("127.0.0.1:9000", SETTINGS.minio_access_key, SETTINGS.minio_secret_key)
+    client.upload_file("sirius", filepath, filename)
