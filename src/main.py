@@ -49,18 +49,17 @@ async def post_user(user_dto: models.CreateUserDTO) -> models.User:
 
 
 @app.get("/users/")
-async def get_users(session: SessionDep, current_user: Annotated[models.User, Depends(get_current_user)]) -> list[models.User]:
+async def get_users(session: SessionDep, current_user: Annotated[models.User, Depends(get_current_user)]) -> list[models.GetUserDTO]:
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     users_in_db = session.exec(select(models.User)).all()
-    users = [user.clean() for user in users_in_db]
 
-    return users
+    return [models.GetUserDTO.from_orm(user) for user in users_in_db]
 
 
 @app.get("/users/me/")
-async def get_users_me(current_user: Annotated[models.User, Depends(get_current_user)]) -> models.User:
-    return current_user.clean()
+async def get_users_me(current_user: Annotated[models.User, Depends(get_current_user)]) -> models.GetUserDTO:
+    return models.GetUserDTO.from_orm(current_user)
 
 
 @app.post("/files/")
