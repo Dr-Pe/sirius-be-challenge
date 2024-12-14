@@ -6,11 +6,12 @@ class FileStorageClient:
         # TODO: This should be dynamic
         self.client = MinioClient(endpoint, access_key, secret_key)
 
-    def create_bucket(self, bucket_name):
-        self.client.create_bucket(bucket_name)
+    def create_bucket(self, username):
+        self.client.create_bucket(username)
 
-    def upload_file(self, bucket_name, file_path, file_name):
-        self.client.upload_file(bucket_name, file_path, file_name)
+    def upload_file(self, username, file_path, file_name):
+        self.client.upload_file(username, file_path, file_name)
+        return self.client.get_object_size(username, file_name)
 
 class MinioClient:
     
@@ -29,3 +30,6 @@ class MinioClient:
         self.create_bucket(bucket_name)
         self.client.fput_object(bucket_name, file_name, file_path)
         print(f"File {file_name} uploaded to {bucket_name}")
+
+    def get_object_size(self, bucket_name, file_name):
+        return self.client.stat_object(bucket_name, file_name).size

@@ -7,6 +7,7 @@ class User(SQLModel, table=True):
     username: str
     password: str
     is_admin: bool = Field(default=False)
+    quota: int = Field(default=0)
 
 
 class CreateUserDTO(BaseModel):
@@ -18,6 +19,7 @@ class CreateUserDTO(BaseModel):
 class GetUserDTO(BaseModel):
     username: str
     is_admin: bool
+    quota: int
 
     class Config:
         from_attributes = True

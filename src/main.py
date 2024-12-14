@@ -64,4 +64,6 @@ async def get_users_me(current_user: Annotated[models.User, Depends(get_current_
 
 @app.post("/files/")
 async def post_file(filepath: str, filename: str, current_user: Annotated[models.User, Depends(get_current_user)]):
-    fs_client.upload_file(current_user, filepath, filename)
+    return fs_client.upload_file(current_user.username, filepath, filename)
+
+
