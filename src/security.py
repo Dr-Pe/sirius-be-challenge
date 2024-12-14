@@ -8,7 +8,7 @@ from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 
 import models
-from db import get_user, SessionDep
+from db import get_user
 from models.settings import SETTINGS
 
 ALGORITHM = "HS256"

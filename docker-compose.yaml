@@ -9,9 +9,8 @@ services:
     volumes:
       - 'minio_data:/data'
     environment:
-      - MINIO_ROOT_USER=admin
-      - MINIO_ROOT_PASSWORD=12345678
-      - MINIO_DEFAULT_BUCKETS=sirius
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
 
 networks:
   minionetwork:
