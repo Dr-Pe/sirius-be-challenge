@@ -5,6 +5,10 @@ from main import app
 client = TestClient(app)
 
 
+def test_post_existent_user():
+    response = client.post("/user/", json={"username": "admin", "password": "admin", "is_admin": True})
+    assert response.status_code == 400
+
 def test_get_as_unauth():
     response = client.get("/users/")
     assert response.status_code == 401

@@ -44,8 +44,8 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> m
 
 
 @app.post("/user/")
-async def post_user(user: models.User) -> models.User:
-    return create_user(user, fs_client)
+async def post_user(user_dto: models.CreateUserDTO) -> models.User:
+    return create_user(user_dto, fs_client)
 
 
 @app.get("/users/")

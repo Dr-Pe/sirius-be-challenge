@@ -1,5 +1,5 @@
 from sqlmodel import Field, SQLModel
-
+from pydantic import BaseModel
 
 class User(SQLModel, table=True):
     id: int = Field(primary_key=True)
@@ -10,3 +10,8 @@ class User(SQLModel, table=True):
     def clean(self):
         self.password = '********'
         return self
+    
+class CreateUserDTO(BaseModel):
+    username: str
+    password: str
+    is_admin: bool = False

@@ -6,16 +6,16 @@ from file_storage_client import FileStorageClient
 from security import get_password_hash
 
 
-def create_user(user: models.User, fs_client: FileStorageClient):
-    if get_user(user.username):
+def create_user(user_dto: models.CreateUserDTO, fs_client: FileStorageClient):
+    if get_user(user_dto.username):
         raise HTTPException(status_code=400, detail="User already exists")
 
     user_in_db = models.User(
-        username=user.username,
-        password=get_password_hash(user.password),
-        is_admin=user.is_admin,
+        username=user_dto.username,
+        password=get_password_hash(user_dto.password),
+        is_admin=user_dto.is_admin,
     )
     insert_model_instance(user_in_db)
-    fs_client.create_bucket(user.username)
+    fs_client.create_bucket(user_dto.username)
 
-    return user
+    return user_dto

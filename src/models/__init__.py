@@ -1,4 +1,4 @@
-from .token_model import Token, TokenData
-from .user import User
+from .token_model import *
+from .user import *
 
-__all__ = ['User', 'Token', 'TokenData']
+__all__ = ['Token', 'TokenData', 'User', 'CreateUserDTO']
