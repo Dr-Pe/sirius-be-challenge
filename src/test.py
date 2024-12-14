@@ -24,3 +24,7 @@ def test_get_as_admin():
     token = response.json()["access_token"]
     response = client.get("/users/", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
+
+def test_post_as_unauth():
+    response = client.post("/files/", data={"filepath": "test", "filename": "test"})
+    assert response.status_code == 401

@@ -70,7 +70,7 @@ async def get_users_me(current_user: Annotated[models.User, Depends(get_current_
 
 
 @app.post("/files/")
-async def post_file(filepath: str, filename: str):
+async def post_file(filepath: str, filename: str, current_user: Annotated[models.User, Depends(get_current_user)]):
     client = MinioClient(
         "127.0.0.1:9000", SETTINGS.minio_access_key, SETTINGS.minio_secret_key)
     client.upload_file("sirius", filepath, filename)
