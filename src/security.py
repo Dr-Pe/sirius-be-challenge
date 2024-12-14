@@ -25,8 +25,8 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def authenticate_user(username: str, password: str, session: SessionDep):
-    user = get_user(session, username)
+def authenticate_user(username: str, password: str):
+    user = get_user(username)
     if not user or not verify_password(password, user.password):
         return False
     
@@ -45,7 +45,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     
     return encoded_jwt
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], session: SessionDep):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> models.User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -60,7 +60,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], sessio
     except InvalidTokenError:
         raise credentials_exception
     
-    user = get_user(session, token_data.username)
+    user = get_user(token_data.username)
     if user is None:
         raise credentials_exception
     

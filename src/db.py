@@ -15,13 +15,20 @@ def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 
+def insert_model_instance(model: SQLModel):
+    with Session(engine) as session:
+        session.add(model)
+        session.commit()
+        session.refresh(model)
+        return model
+
+def get_user(username: str):
+    with Session(engine) as session:
+        return session.exec(select(models.User).where(models.User.username == username)).first()
+
 def get_session():
     with Session(engine) as session:
         yield session
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
-
-
-def get_user(session: SessionDep, username: str):
-    return session.exec(select(models.User).where(models.User.username == username)).first()
