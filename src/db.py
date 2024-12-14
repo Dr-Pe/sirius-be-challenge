@@ -20,7 +20,6 @@ def insert_model_instance(model: SQLModel):
         session.add(model)
         session.commit()
         session.refresh(model)
-        return model
 
 def get_user(username: str):
     with Session(engine) as session:

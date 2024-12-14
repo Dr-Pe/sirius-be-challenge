@@ -5,12 +5,15 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import select
 
 import models
-from db import SessionDep, create_db_and_tables, insert_model_instance, get_user
-from security import authenticate_user, create_access_token, get_password_hash, get_current_user
-from minio_client import MinioClient
+from db import SessionDep, create_db_and_tables, get_user
+from file_storage_client import FileStorageClient
 from models.settings import SETTINGS
+from security import authenticate_user, create_access_token, get_current_user
+from utils import create_user
 
 app = FastAPI()
+fs_client = FileStorageClient(
+    SETTINGS.minio_url, SETTINGS.minio_access_key, SETTINGS.minio_secret_key)
 
 
 @app.on_event("startup")
@@ -19,12 +22,12 @@ def on_startup():
     # TODO: Pasar user y password a variables de entorno
     if not get_user("admin"):
         admin = models.User(
-            username="admin", password=get_password_hash("admin"), is_admin=True)
-        insert_model_instance(admin)
+            username="admin", password="admin", is_admin=True)
+        create_user(admin, fs_client)
     if not get_user("noadmin"):
         noadmin = models.User(
-            username="noadmin", password=get_password_hash("noadmin"), is_admin=False)
-        insert_model_instance(noadmin)
+            username="noadmin", password="noadmin", is_admin=False)
+        create_user(noadmin, fs_client)
 
 
 @app.post("/token")
@@ -42,16 +45,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> m
 
 @app.post("/user/")
 async def post_user(user: models.User) -> models.User:
-    if get_user(user.username):
-        raise HTTPException(status_code=400, detail="User already exists")
-
-    user_in_db = models.User(
-        username=user.username,
-        password=get_password_hash(user.password),
-        is_admin=user.is_admin,
-    )
-
-    return insert_model_instance(user_in_db)
+    return create_user(user, fs_client)
 
 
 @app.get("/users/")
@@ -71,6 +65,4 @@ async def get_users_me(current_user: Annotated[models.User, Depends(get_current_
 
 @app.post("/files/")
 async def post_file(filepath: str, filename: str, current_user: Annotated[models.User, Depends(get_current_user)]):
-    client = MinioClient(
-        "127.0.0.1:9000", SETTINGS.minio_access_key, SETTINGS.minio_secret_key)
-    client.upload_file("sirius", filepath, filename)
+    fs_client.upload_file(current_user, filepath, filename)
