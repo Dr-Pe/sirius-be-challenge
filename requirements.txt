@@ -7,3 +7,4 @@ minio
 pydantic-settings
 python-dotenv
 pytest
+coverage

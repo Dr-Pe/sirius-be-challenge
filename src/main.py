@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import select
 
 import models
-from db import SessionDep, create_db_and_tables, insert_model_instance
+from db import SessionDep, create_db_and_tables, insert_model_instance, get_user
 from security import authenticate_user, create_access_token, get_password_hash, get_current_user
 from minio_client import MinioClient
 from models.settings import SETTINGS
@@ -17,12 +17,14 @@ app = FastAPI()
 def on_startup():
     create_db_and_tables()
     # TODO: Pasar user y password a variables de entorno
-    admin = models.User(
-        username="admin", password=get_password_hash("admin"), is_admin=True)
-    noadmin = models.User(
-        username="noadmin", password=get_password_hash("noadmin"), is_admin=False)
-    insert_model_instance(admin)
-    insert_model_instance(noadmin)
+    if not get_user("admin"):
+        admin = models.User(
+            username="admin", password=get_password_hash("admin"), is_admin=True)
+        insert_model_instance(admin)
+    if not get_user("noadmin"):
+        noadmin = models.User(
+            username="noadmin", password=get_password_hash("noadmin"), is_admin=False)
+        insert_model_instance(noadmin)
 
 
 @app.post("/token")
@@ -40,6 +42,9 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> m
 
 @app.post("/user/")
 async def post_user(user: models.User) -> models.User:
+    if get_user(user.username):
+        raise HTTPException(status_code=400, detail="User already exists")
+
     user_in_db = models.User(
         username=user.username,
         password=get_password_hash(user.password),
