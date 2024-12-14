@@ -62,6 +62,9 @@ async def get_users_me(current_user: Annotated[models.User, Depends(get_current_
 
 @app.post("/files/")
 async def post_file(filepath: str, filename: str, current_user: Annotated[models.User, Depends(get_current_user)]):
-    return UserManager(current_user).upload_file(fs_client, filepath, filename)
+    if UserManager(current_user).upload_file(fs_client, filepath, filename):
+        return {"detail": "File uploaded"}
+    else:
+        raise HTTPException(status_code=400, detail="Quota exceeded")
 
 

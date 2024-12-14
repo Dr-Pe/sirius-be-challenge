@@ -2,6 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    max_quota_in_gb: int
     sqlite_filename: str
     secret_key: str
     access_token_expire_minutes: int
