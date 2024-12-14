@@ -10,10 +10,10 @@ from file_storage_client import FileStorageClient
 from models.settings import SETTINGS
 from security import authenticate_user, create_access_token, get_current_user
 from utils import create_user
+from user_manager import UserManager
 
 app = FastAPI()
-fs_client = FileStorageClient(
-    SETTINGS.minio_url, SETTINGS.minio_access_key, SETTINGS.minio_secret_key)
+fs_client = FileStorageClient(SETTINGS.minio_url, SETTINGS.minio_access_key, SETTINGS.minio_secret_key)
 
 
 @app.on_event("startup")
@@ -21,12 +21,10 @@ def on_startup():
     create_db_and_tables()
     # TODO: Pasar user y password a variables de entorno
     if not get_user("admin"):
-        admin = models.User(
-            username="admin", password="admin", is_admin=True)
+        admin = models.User(username="admin", password="admin", is_admin=True)
         create_user(admin, fs_client)
     if not get_user("noadmin"):
-        noadmin = models.User(
-            username="noadmin", password="noadmin", is_admin=False)
+        noadmin = models.User(username="noadmin", password="noadmin", is_admin=False)
         create_user(noadmin, fs_client)
 
 
@@ -64,6 +62,6 @@ async def get_users_me(current_user: Annotated[models.User, Depends(get_current_
 
 @app.post("/files/")
 async def post_file(filepath: str, filename: str, current_user: Annotated[models.User, Depends(get_current_user)]):
-    return fs_client.upload_file(current_user.username, filepath, filename)
+    return UserManager(current_user).upload_file(fs_client, filepath, filename)
 
 
