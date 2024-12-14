@@ -2,11 +2,11 @@ from typing import Annotated
 
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine, select
-from settings import SETTINGS
+from models.settings import SETTINGS
 
 import models
 
-sqlite_url = f"sqlite:///{SETTINGS.sqlite_file_name}"
+sqlite_url = f"sqlite:///{SETTINGS.sqlite_filename}"
 connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
 

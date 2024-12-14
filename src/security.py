@@ -9,7 +9,7 @@ from passlib.context import CryptContext
 
 import models
 from db import get_user, SessionDep
-from settings import SETTINGS
+from models.settings import SETTINGS
 
 ALGORITHM = "HS256"
 

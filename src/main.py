@@ -8,7 +8,7 @@ import models
 from db import SessionDep, create_db_and_tables
 from security import authenticate_user, create_access_token, get_password_hash, get_current_user
 from minio_client import MinioClient
-from settings import SETTINGS
+from models.settings import SETTINGS
 
 app = FastAPI()
 
