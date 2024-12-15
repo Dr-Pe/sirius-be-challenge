@@ -6,6 +6,7 @@ from file_storage_manager import FileStorageClient
 from settings import SETTINGS
 from security import get_password_hash
 from datetime import date
+import uuid
 
 
 def create_user(user_dto: models.CreateUserDTO, fs_client: FileStorageClient):
@@ -16,9 +17,10 @@ def create_user(user_dto: models.CreateUserDTO, fs_client: FileStorageClient):
         username=user_dto.username,
         password=get_password_hash(user_dto.password),
         is_admin=user_dto.is_admin,
+        bucket_name=f"{user_dto.username}-{uuid.uuid4()}"
     )
     insert_model_instance(user_in_db)
-    fs_client.create_bucket(user_dto.username)
+    fs_client.create_bucket(user_in_db.bucket_name)
 
     return user_dto
 
@@ -28,10 +30,10 @@ class UserManager:
     def __init__(self, user: models.User):
         self.user = user
 
-    def upload_file(self, fs_client, file_path, file_name):
+    def upload_file(self, fs_manager, file_path, filename):
         if self._can_upload_file():
-            fs_upload_response_dto = fs_client.upload_file(
-                self.user.username, file_path, file_name)
+            fs_upload_response_dto = fs_manager.upload_file(
+                self.user.bucket_name, file_path, filename)
             self._update_user_quota(fs_upload_response_dto.new_bucket_size)
             self._update_user_daily_usage(fs_upload_response_dto.file_size)
 
@@ -39,11 +41,11 @@ class UserManager:
         else:
             return False
         
-    def download_file(self, fs_client, file_path, file_name):
-        fs_client.download_file(self.user.username, file_path, file_name)
+    def download_file(self, fs_manager, file_path, filename):
+        fs_manager.download_file(self.user.bucket_name, file_path, filename)
         
-    def delete_file(self, fs_client, file_name):
-        new_quota = fs_client.delete_file(self.user.username, file_name)
+    def delete_file(self, fs_manager, filename):
+        new_quota = fs_manager.delete_file(self.user.bucket_name, filename)
         self._update_user_quota(new_quota)
 
         return new_quota

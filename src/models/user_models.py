@@ -9,6 +9,7 @@ class User(SQLModel, table=True):
     username: str
     password: str
     is_admin: bool = Field(default=False)
+    bucket_name: str
     quota: int = Field(default=0)
     daily_usage: "DailyUsage" = Relationship(back_populates="user")
 
@@ -22,6 +23,7 @@ class CreateUserDTO(BaseModel):
 class GetUserDTO(BaseModel):
     username: str
     is_admin: bool
+    bucket_name: str
     quota: int
 
     class Config:

@@ -1,40 +1,68 @@
 from minio import Minio
-from models import FileStorageResponseDTO
+from models import FileStorageResponseDTO, FileStorageClientParams
 import os
 
 
 class FileStorageManager:
 
-    def __init__(self):
-        pass
+    def __init__(self, params: list[FileStorageClientParams]):
+        self.clients = []
+        for param in params:
+            self.clients.append(FileStorageClient(param.endpoint, param.access_key, param.secret_key))
+
+    def create_bucket(self, bucket_name):
+        for client in self.clients:
+            client.create_bucket(bucket_name)
+
+    def upload_file(self, bucket_name, file_path, filename):
+        response = None
+        for client in self.clients:
+            with open(file_path, "rb") as file:
+                response = self._upload_file(client, bucket_name, filename, file, os.fstat(file.fileno()).st_size)
+
+        return response
+
+    def download_file(self, bucket_name, file_path, filename):
+        for client in self.clients:
+            try:
+                client.download_file(bucket_name, file_path, filename)
+                break
+            except Exception as e:
+                print(e)
+                continue
+
+    def delete_file(self, bucket_name, filename):
+        new_quota = None
+        for client in self.clients:
+            new_quota = client.delete_file(bucket_name, filename)
+
+        return new_quota
+
+    def _upload_file(self, client, bucket_name, filename, file, file_size):
+        return client.upload_file(bucket_name, filename, file, file_size)
+
 
 class FileStorageClient:
 
     def __init__(self, endpoint, access_key, secret_key):
         self.client = MinioS3Client(endpoint, access_key, secret_key)
 
-    def create_bucket(self, username):
-        self.client.create_bucket(username)
+    def create_bucket(self, bucket_name):
+        self.client.create_bucket(bucket_name)
 
-    def upload_file(self, username, file_path, file_name):
-        old_bucket_size = self.client.get_bucket_size(username)
-        with open(file_path, "rb") as file:
-            self._upload_file(
-                username, file_name, file, os.fstat(file.fileno()).st_size)
-        
-        new_bucket_size = self.client.get_bucket_size(username)
+    def upload_file(self, bucket_name, filename, file, file_size):
+        old_bucket_size = self.client.get_bucket_size(bucket_name)
+        self.client.upload_file(bucket_name, filename, file, file_size)
+        new_bucket_size = self.client.get_bucket_size(bucket_name)
 
         return FileStorageResponseDTO(file_size=new_bucket_size - old_bucket_size, new_bucket_size=new_bucket_size)
 
-    def download_file(self, username, file_path, file_name):
-        self.client.download_file(username, file_path, file_name)
+    def download_file(self, bucket_name, file_path, filename):
+        self.client.download_file(bucket_name, file_path, filename)
 
-    def delete_file(self, username, file_name):
-        self.client.delete_file(username, file_name)
-        return self.client.get_bucket_size(username)
-    
-    def _upload_file(self, bucket_name, file_name, file, file_size):
-        self.client.upload_file(bucket_name, file_name, file, file_size)
+    def delete_file(self, bucket_name, filename):
+        self.client.delete_file(bucket_name, filename)
+        return self.client.get_bucket_size(bucket_name)
 
 
 class MinioS3Client:
@@ -50,15 +78,15 @@ class MinioS3Client:
         else:
             print(f"Bucket {bucket_name} already exists")
 
-    def upload_file(self, bucket_name, file_name, file, file_size):
+    def upload_file(self, bucket_name, filename, file, file_size):
         self.create_bucket(bucket_name)
-        self.client.put_object(bucket_name, file_name, file, file_size)
+        self.client.put_object(bucket_name, filename, file, file_size)
 
-    def download_file(self, bucket_name, file_path, file_name):
-        self.client.fget_object(bucket_name, file_name, file_path)
+    def download_file(self, bucket_name, file_path, filename):
+        self.client.fget_object(bucket_name, filename, file_path)
 
-    def delete_file(self, bucket_name, file_name):
-        self.client.remove_object(bucket_name, file_name)
+    def delete_file(self, bucket_name, filename):
+        self.client.remove_object(bucket_name, filename)
 
     def get_bucket_size(self, bucket_name):
         total_size = 0

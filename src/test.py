@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 from settings import SETTINGS
-from main import app, fs_client
+from main import app, fs_manager
 from io import BytesIO
 
 client = TestClient(app)
@@ -50,7 +50,7 @@ def test_get_as_admin():
 def test_upload_then_delete_file_as_admin():
     # TODO: I souldn't be using the 'private' of fs_client method here, but the public one, in order to test also the calculation of the new quota and daily usage
     test_file = BytesIO(b"test file content")
-    fs_client._upload_file(
+    fs_manager._upload_file(
         SETTINGS.default_admin_user, "test_file.txt", test_file, test_file.getbuffer().nbytes)
     
     response = client.post(
