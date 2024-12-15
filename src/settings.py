@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     # JWT
     secret_key: str
     access_token_expire_minutes: int
+    # AWS
+    aws_url: str
+    aws_access_key: str
+    aws_secret_key: str
     # Minio
     minio_url: str
     minio_access_key: str

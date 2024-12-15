@@ -6,7 +6,6 @@ import os
 class FileStorageClient:
 
     def __init__(self, endpoint, access_key, secret_key):
-        # TODO: This should be dynamic
         self.client = MinioClient(endpoint, access_key, secret_key)
 
     def create_bucket(self, username):

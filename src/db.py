@@ -1,6 +1,6 @@
 from sqlmodel import Session, SQLModel, create_engine, select
 from sqlalchemy.orm import joinedload
-from models.settings import SETTINGS
+from settings import SETTINGS
 import models
 
 sqlite_url = f"sqlite:///{SETTINGS.sqlite_filename}"

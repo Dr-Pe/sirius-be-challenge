@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from models.settings import SETTINGS
+from settings import SETTINGS
 from main import app, fs_client
 from io import BytesIO
 
