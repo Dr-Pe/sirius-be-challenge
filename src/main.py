@@ -3,7 +3,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 import models
 from db import create_db_and_tables, get_db_user, get_db_users, get_db_users_w_stats
-from file_storage_client import FileStorageClient
+from file_storage_manager import FileStorageClient
 from settings import SETTINGS
 from security import authenticate_user, create_access_token, get_current_user
 from user_manager import create_user, UserManager

@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlmodel import Session, update, select
 import models
 from db import engine, get_db_user, insert_model_instance
-from file_storage_client import FileStorageClient
+from file_storage_manager import FileStorageClient
 from settings import SETTINGS
 from security import get_password_hash
 from datetime import date

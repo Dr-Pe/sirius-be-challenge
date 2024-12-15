@@ -3,10 +3,15 @@ from models import FileStorageResponseDTO
 import os
 
 
+class FileStorageManager:
+
+    def __init__(self):
+        pass
+
 class FileStorageClient:
 
     def __init__(self, endpoint, access_key, secret_key):
-        self.client = MinioClient(endpoint, access_key, secret_key)
+        self.client = MinioS3Client(endpoint, access_key, secret_key)
 
     def create_bucket(self, username):
         self.client.create_bucket(username)
@@ -32,7 +37,7 @@ class FileStorageClient:
         self.client.upload_file(bucket_name, file_name, file, file_size)
 
 
-class MinioClient:
+class MinioS3Client:
 
     def __init__(self, endpoint, access_key, secret_key):
         self.client = Minio(endpoint, access_key, secret_key, secure=False)
