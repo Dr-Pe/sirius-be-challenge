@@ -39,7 +39,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> m
     return models.Token(access_token=access_token, token_type="bearer")
 
 
-@app.post("/user/")
+@app.post("/users/")
 async def post_user(user_dto: models.CreateUserDTO) -> models.User:
     return create_user(user_dto, fs_client)
 

@@ -28,11 +28,3 @@ def get_db_user(username: str):
 def get_db_users():
     with Session(engine) as session:
         return session.exec(select(models.User)).all()
-
-
-def get_session():
-    with Session(engine) as session:
-        yield session
-
-
-SessionDep = Annotated[Session, Depends(get_session)]
