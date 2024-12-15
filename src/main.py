@@ -65,6 +65,9 @@ async def post_file(filepath: str, filename: str, current_user: Annotated[models
     else:
         raise HTTPException(status_code=400, detail="Quota exceeded")
 
+@app.get("/files/")
+async def get_file(filepath: str, filename: str, current_user: Annotated[models.User, Depends(get_current_user)]):
+    UserManager(current_user).download_file(fs_client, filepath, filename)
 
 @app.delete("/files/{filename}")
 async def delete_file(filename: str, current_user: Annotated[models.User, Depends(get_current_user)]):

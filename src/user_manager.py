@@ -39,6 +39,9 @@ class UserManager:
         else:
             return False
         
+    def download_file(self, fs_client, file_path, file_name):
+        fs_client.download_file(self.user.username, file_path, file_name)
+        
     def delete_file(self, fs_client, file_name):
         new_quota = fs_client.delete_file(self.user.username, file_name)
         self._update_user_quota(new_quota)
