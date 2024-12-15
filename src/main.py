@@ -6,8 +6,7 @@ from db import create_db_and_tables, get_db_user, get_db_users
 from file_storage_client import FileStorageClient
 from models.settings import SETTINGS
 from security import authenticate_user, create_access_token, get_current_user
-from user_manager import create_user
-from bucket_manager import BucketManager
+from user_manager import create_user, UserManager
 
 app = FastAPI()
 fs_client = FileStorageClient(
@@ -17,13 +16,13 @@ fs_client = FileStorageClient(
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
-    # TODO: Pasar user y password a variables de entorno
-    if not get_db_user("admin"):
-        admin = models.User(username="admin", password="admin", is_admin=True)
+    if not get_db_user(SETTINGS.default_admin_user):
+        admin = models.User(username=SETTINGS.default_admin_user,
+                            password=SETTINGS.default_admin_password, is_admin=True)
         create_user(admin, fs_client)
-    if not get_db_user("noadmin"):
-        noadmin = models.User(username="noadmin",
-                              password="noadmin", is_admin=False)
+    if not get_db_user(SETTINGS.default_non_admin_user):
+        noadmin = models.User(username=SETTINGS.default_non_admin_user,
+                              password=SETTINGS.default_non_admin_password, is_admin=False)
         create_user(noadmin, fs_client)
 
 
@@ -61,14 +60,15 @@ async def get_users_me(current_user: Annotated[models.User, Depends(get_current_
 
 @app.post("/files/")
 async def post_file(filepath: str, filename: str, current_user: Annotated[models.User, Depends(get_current_user)]):
-    if BucketManager(current_user).upload_file(fs_client, filepath, filename):
+    if UserManager(current_user).upload_file(fs_client, filepath, filename):
         return {"detail": "File uploaded"}
     else:
         raise HTTPException(status_code=400, detail="Quota exceeded")
 
+
 @app.delete("/files/{filename}")
 async def delete_file(filename: str, current_user: Annotated[models.User, Depends(get_current_user)]):
-    if BucketManager(current_user).delete_file(fs_client, filename):
+    if UserManager(current_user).delete_file(fs_client, filename):
         return {"detail": "File deleted"}
     else:
         raise HTTPException(status_code=400, detail="File not found")
