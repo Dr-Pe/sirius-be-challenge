@@ -1,4 +1,5 @@
 from minio import Minio
+from models import FileStorageResponseDTO
 
 class FileStorageClient:
 
@@ -10,8 +11,11 @@ class FileStorageClient:
         self.client.create_bucket(username)
 
     def upload_file(self, username, file_path, file_name):
+        old_bucket_size = self.client.get_bucket_size(username)
         self.client.upload_file(username, file_path, file_name)
-        return self.client.get_bucket_size(username)
+        new_bucket_size = self.client.get_bucket_size(username)
+
+        return FileStorageResponseDTO(file_size=new_bucket_size - old_bucket_size, new_bucket_size=new_bucket_size)  
     
     def delete_file(self, username, file_name):
         self.client.delete_file(username, file_name)
