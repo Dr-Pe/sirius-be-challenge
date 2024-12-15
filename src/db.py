@@ -1,9 +1,7 @@
 from typing import Annotated
-
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine, select
 from models.settings import SETTINGS
-
 import models
 
 sqlite_url = f"sqlite:///{SETTINGS.sqlite_filename}"
@@ -21,9 +19,16 @@ def insert_model_instance(model: SQLModel):
         session.commit()
         session.refresh(model)
 
-def get_user(username: str):
+
+def get_db_user(username: str):
     with Session(engine) as session:
         return session.exec(select(models.User).where(models.User.username == username)).first()
+
+
+def get_db_users():
+    with Session(engine) as session:
+        return session.exec(select(models.User)).all()
+
 
 def get_session():
     with Session(engine) as session:

@@ -1,11 +1,9 @@
 from typing import Annotated
-
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import select
-
 import models
-from db import SessionDep, create_db_and_tables, get_user
+from db import create_db_and_tables, get_db_user, get_db_users
 from file_storage_client import FileStorageClient
 from models.settings import SETTINGS
 from security import authenticate_user, create_access_token, get_current_user
@@ -13,18 +11,20 @@ from utils import create_user
 from user_manager import UserManager
 
 app = FastAPI()
-fs_client = FileStorageClient(SETTINGS.minio_url, SETTINGS.minio_access_key, SETTINGS.minio_secret_key)
+fs_client = FileStorageClient(
+    SETTINGS.minio_url, SETTINGS.minio_access_key, SETTINGS.minio_secret_key)
 
 
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
     # TODO: Pasar user y password a variables de entorno
-    if not get_user("admin"):
+    if not get_db_user("admin"):
         admin = models.User(username="admin", password="admin", is_admin=True)
         create_user(admin, fs_client)
-    if not get_user("noadmin"):
-        noadmin = models.User(username="noadmin", password="noadmin", is_admin=False)
+    if not get_db_user("noadmin"):
+        noadmin = models.User(username="noadmin",
+                              password="noadmin", is_admin=False)
         create_user(noadmin, fs_client)
 
 
@@ -47,10 +47,10 @@ async def post_user(user_dto: models.CreateUserDTO) -> models.User:
 
 
 @app.get("/users/")
-async def get_users(session: SessionDep, current_user: Annotated[models.User, Depends(get_current_user)]) -> list[models.GetUserDTO]:
+async def get_users(current_user: Annotated[models.User, Depends(get_current_user)]) -> list[models.GetUserDTO]:
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    users_in_db = session.exec(select(models.User)).all()
+    users_in_db = get_db_users()
 
     return [models.GetUserDTO.from_orm(user) for user in users_in_db]
 
@@ -66,5 +66,3 @@ async def post_file(filepath: str, filename: str, current_user: Annotated[models
         return {"detail": "File uploaded"}
     else:
         raise HTTPException(status_code=400, detail="Quota exceeded")
-
-
