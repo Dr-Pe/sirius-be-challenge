@@ -27,21 +27,10 @@ class UserManager:
     def __init__(self, user: models.User):
         self.user = user
 
-    def upload_file(self, fs_client, file_path, file_name):
-        if self.user.quota < SETTINGS.max_quota_in_gb:
-            new_quota = fs_client.upload_file(
-                self.user.username, file_path, file_name)
-            with Session(engine) as session:
-                session.exec(update(models.User).where(
-                    models.User.username == self.user.username).values(quota=new_quota))
-                session.commit()
+    def can_upload_file(self):
+        return self.user.quota < SETTINGS.max_quota_in_gb
 
-            return new_quota
-        else:
-            return False
-
-    def delete_file(self, fs_client, file_name):
-        new_quota = fs_client.delete_file(self.user.username, file_name)
+    def update_user_quota(self, new_quota: float):
         with Session(engine) as session:
             session.exec(update(models.User).where(
                 models.User.username == self.user.username).values(quota=new_quota))

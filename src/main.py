@@ -1,13 +1,13 @@
 from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlmodel import select
 import models
 from db import create_db_and_tables, get_db_user, get_db_users
 from file_storage_client import FileStorageClient
 from models.settings import SETTINGS
 from security import authenticate_user, create_access_token, get_current_user
-from user_manager import UserManager, create_user
+from user_manager import create_user
+from bucket_manager import BucketManager
 
 app = FastAPI()
 fs_client = FileStorageClient(
@@ -61,14 +61,14 @@ async def get_users_me(current_user: Annotated[models.User, Depends(get_current_
 
 @app.post("/files/")
 async def post_file(filepath: str, filename: str, current_user: Annotated[models.User, Depends(get_current_user)]):
-    if UserManager(current_user).upload_file(fs_client, filepath, filename):
+    if BucketManager(current_user).upload_file(fs_client, filepath, filename):
         return {"detail": "File uploaded"}
     else:
         raise HTTPException(status_code=400, detail="Quota exceeded")
 
 @app.delete("/files/{filename}")
 async def delete_file(filename: str, current_user: Annotated[models.User, Depends(get_current_user)]):
-    if UserManager(current_user).delete_file(fs_client, filename):
+    if BucketManager(current_user).delete_file(fs_client, filename):
         return {"detail": "File deleted"}
     else:
         raise HTTPException(status_code=400, detail="File not found")
