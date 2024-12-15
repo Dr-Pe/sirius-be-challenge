@@ -7,8 +7,7 @@ from db import create_db_and_tables, get_db_user, get_db_users
 from file_storage_client import FileStorageClient
 from models.settings import SETTINGS
 from security import authenticate_user, create_access_token, get_current_user
-from utils import create_user
-from user_manager import UserManager
+from user_manager import UserManager, create_user
 
 app = FastAPI()
 fs_client = FileStorageClient(
