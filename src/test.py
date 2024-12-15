@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
-from settings import SETTINGS
-from main import app, fs_manager
+from src.settings import SETTINGS
+from src.main import app
+from src.dependencies import fs_manager
 from io import BytesIO
 
 client = TestClient(app)

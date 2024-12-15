@@ -1,5 +1,5 @@
 from minio import Minio
-from models import FileStorageResponseDTO, FileStorageClientParams
+from src.models import *
 import os
 
 

@@ -5,9 +5,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
-import models
-from db import get_db_user
-from settings import SETTINGS
+from src.models import *
+from src.db import get_db_user
+from src.settings import SETTINGS
 
 ALGORITHM = "HS256"
 
@@ -46,7 +46,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> models.User:
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -58,7 +58,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> mod
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_data = models.TokenData(username=username)
+        token_data = TokenData(username=username)
     except InvalidTokenError:
         raise credentials_exception
 

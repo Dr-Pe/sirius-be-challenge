@@ -1,19 +1,19 @@
+from src.models import *
 from fastapi import HTTPException
 from sqlmodel import Session, update, select
-import models
-from db import engine, get_db_user, insert_model_instance
-from file_storage_manager import FileStorageClient
-from settings import SETTINGS
-from security import get_password_hash
+from src.db import engine, get_db_user, insert_model_instance
+from src.file_storage_manager import FileStorageClient
+from src.settings import SETTINGS
+from src.security import get_password_hash
 from datetime import date
 import uuid
 
 
-def create_user(user_dto: models.CreateUserDTO, fs_client: FileStorageClient):
+def create_user(user_dto: CreateUserDTO, fs_client: FileStorageClient):
     if get_db_user(user_dto.username):
         raise HTTPException(status_code=400, detail="User already exists")
 
-    user_in_db = models.User(
+    user_in_db = User(
         username=user_dto.username,
         password=get_password_hash(user_dto.password),
         is_admin=user_dto.is_admin,
@@ -27,7 +27,7 @@ def create_user(user_dto: models.CreateUserDTO, fs_client: FileStorageClient):
 
 class UserManager:
 
-    def __init__(self, user: models.User):
+    def __init__(self, user: User):
         self.user = user
 
     def upload_file(self, fs_manager, file_path, filename):
@@ -55,23 +55,23 @@ class UserManager:
 
     def _update_user_quota(self, new_quota):
         with Session(engine) as session:
-            session.exec(update(models.User).where(
-                models.User.username == self.user.username).values(quota=new_quota))
+            session.exec(update(User).where(
+                User.username == self.user.username).values(quota=new_quota))
             session.commit()
 
     def _update_user_daily_usage(self, usage):
         with Session(engine) as session:
-            daily_usage = session.exec(select(models.DailyUsage).where(
-                models.DailyUsage.user_id == self.user.id)).one_or_none()
+            daily_usage = session.exec(select(DailyUsage).where(
+                DailyUsage.user_id == self.user.id)).one_or_none()
             if daily_usage and daily_usage.date == date.today():
                 daily_usage.usage += usage
-                session.exec(update(models.DailyUsage).where(
-                    models.DailyUsage.user_id == self.user.id).values(usage=daily_usage.usage))
+                session.exec(update(DailyUsage).where(
+                    DailyUsage.user_id == self.user.id).values(usage=daily_usage.usage))
             elif daily_usage:
-                session.exec(update(models.DailyUsage).where(
-                    models.DailyUsage.user_id == self.user.id).values(date=date.today(), usage=usage))
+                session.exec(update(DailyUsage).where(
+                    DailyUsage.user_id == self.user.id).values(date=date.today(), usage=usage))
             else:
-                session.add(models.DailyUsage(
+                session.add(DailyUsage(
                     user_id=self.user.id, date=date.today(), usage=usage))
 
             session.commit()
