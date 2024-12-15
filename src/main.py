@@ -66,3 +66,10 @@ async def post_file(filepath: str, filename: str, current_user: Annotated[models
         return {"detail": "File uploaded"}
     else:
         raise HTTPException(status_code=400, detail="Quota exceeded")
+
+@app.delete("/files/{filename}")
+async def delete_file(filename: str, current_user: Annotated[models.User, Depends(get_current_user)]):
+    if UserManager(current_user).delete_file(fs_client, filename):
+        return {"detail": "File deleted"}
+    else:
+        raise HTTPException(status_code=400, detail="File not found")

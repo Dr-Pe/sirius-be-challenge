@@ -19,3 +19,11 @@ class UserManager:
             return new_quota
         else:
             return False
+
+    def delete_file(self, fs_client, file_name):
+        new_quota = fs_client.delete_file(self.user.username, file_name)
+        with Session(engine) as session:
+            session.exec(update(models.User).where(models.User.username == self.user.username).values(quota=new_quota))
+            session.commit()
+
+        return new_quota

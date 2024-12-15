@@ -12,6 +12,10 @@ class FileStorageClient:
     def upload_file(self, username, file_path, file_name):
         self.client.upload_file(username, file_path, file_name)
         return self.client.get_bucket_size(username)
+    
+    def delete_file(self, username, file_name):
+        self.client.delete_file(username, file_name)
+        return self.client.get_bucket_size(username)
 
 class MinioClient:
     
@@ -29,6 +33,9 @@ class MinioClient:
     def upload_file(self, bucket_name, file_path, file_name):
         self.create_bucket(bucket_name)
         self.client.fput_object(bucket_name, file_name, file_path)
+
+    def delete_file(self, bucket_name, file_name):
+        self.client.remove_object(bucket_name, file_name)
 
     def get_bucket_size(self, bucket_name):
         total_size = 0
