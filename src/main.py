@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 import models
-from db import create_db_and_tables, get_db_user, get_db_users
+from db import create_db_and_tables, get_db_user, get_db_users, get_db_users_w_stats
 from file_storage_client import FileStorageClient
 from models.settings import SETTINGS
 from security import authenticate_user, create_access_token, get_current_user
@@ -72,3 +72,11 @@ async def delete_file(filename: str, current_user: Annotated[models.User, Depend
         return {"detail": "File deleted"}
     else:
         raise HTTPException(status_code=400, detail="File not found")
+
+@app.get("/stats/")
+async def get_stats(current_user: Annotated[models.User, Depends(get_current_user)]) -> list[models.GetUserStatsDTO]:
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    users_in_db = get_db_users_w_stats()
+
+    return [models.GetUserStatsDTO.from_orm(user) for user in users_in_db if user.daily_usage]

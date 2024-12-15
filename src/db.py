@@ -1,6 +1,5 @@
-from typing import Annotated
-from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine, select
+from sqlalchemy.orm import joinedload
 from models.settings import SETTINGS
 import models
 
@@ -28,3 +27,7 @@ def get_db_user(username: str):
 def get_db_users():
     with Session(engine) as session:
         return session.exec(select(models.User)).all()
+    
+def get_db_users_w_stats():
+    with Session(engine) as session:
+        return session.exec(select(models.User).options(joinedload(models.User.daily_usage))).all()
