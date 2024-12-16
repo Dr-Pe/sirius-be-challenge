@@ -62,8 +62,6 @@ class UserManager:
         new_quota = fs_manager.delete_file(self.user.bucket_name, filename)
         self._update_user_quota(new_quota)
 
-        return new_quota
-
     def _can_upload_file(self):
         return self.user.quota < SETTINGS.max_quota_in_gb
 
