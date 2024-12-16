@@ -1,13 +1,15 @@
 from typing import Annotated
-from fastapi import Depends, HTTPException
-from src.models import *
-from src.security import get_current_user
-from fastapi import APIRouter
+
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from src.security import authenticate_user, create_access_token, get_current_user
+
 from src.db import get_db_users_w_stats
+from src.models import *
+from src.security import (authenticate_user, create_access_token,
+                          get_current_user)
 
 router = APIRouter()
+
 
 @router.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
@@ -20,6 +22,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> T
     access_token = create_access_token(data={"sub": user.username})
 
     return Token(access_token=access_token, token_type="bearer")
+
 
 @router.get("/stats/")
 async def get_stats(current_user: Annotated[User, Depends(get_current_user)]) -> list[GetUserStatsDTO]:

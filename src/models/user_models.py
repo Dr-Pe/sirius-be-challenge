@@ -1,7 +1,8 @@
-from typing import Optional
-from sqlmodel import Field, SQLModel, Relationship
-from pydantic import BaseModel
 from datetime import date
+from typing import Optional
+
+from pydantic import BaseModel
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class User(SQLModel, table=True):
@@ -37,10 +38,11 @@ class GetUserStatsDTO(BaseModel):
     class Config:
         from_attributes = True
 
+
 class DailyUsage(SQLModel, table=True):
     id: int = Field(primary_key=True)
     user_id: int = Field(foreign_key="user.id")
-    user: "User" = Relationship(back_populates="daily_usage") # type: ignore
+    user: "User" = Relationship(back_populates="daily_usage")  # type: ignore
     date: date
     usage: int = Field(default=0)
 

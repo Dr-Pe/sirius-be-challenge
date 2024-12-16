@@ -1,10 +1,11 @@
 from typing import Annotated
-from fastapi import Depends, HTTPException
+
+from fastapi import APIRouter, Depends, HTTPException
+
+from src.dependencies import fs_manager
 from src.models import *
 from src.security import get_current_user
 from src.user_manager import UserManager
-from src.dependencies import fs_manager
-from fastapi import APIRouter
 
 router = APIRouter()
 
@@ -18,8 +19,9 @@ async def post_file(filepath: str, filename: str, current_user: Annotated[User, 
 
 
 @router.get("/files/")
-async def get_file(filepath: str, filename: str, current_user: Annotated[User, Depends(get_current_user)]):
+async def get_file(filepath: str, filename: str, current_user: Annotated[User, Depends(get_current_user)]) -> dict:
     UserManager(current_user).download_file(fs_manager, filepath, filename)
+    return {"detail": f"{filename} downloaded in {filepath}"}
 
 
 @router.delete("/files/{filename}")

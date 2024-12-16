@@ -1,6 +1,8 @@
-from minio import Minio
-from src.models import *
 import os
+
+from minio import Minio
+
+from src.models import *
 
 
 class FileStorageManager:
@@ -25,7 +27,7 @@ class FileStorageManager:
                 response = self._upload_file(client, bucket_name, filename, file, os.fstat(file.fileno()).st_size)
 
         return response
-    
+
     def list_files(self, bucket_name):
         for client in self.clients:
             return client.list_files(bucket_name)
@@ -67,7 +69,7 @@ class FileStorageClient:
         new_bucket_size = self.client.get_bucket_size(bucket_name)
 
         return FileStorageUploadResponseDTO(file_size=new_bucket_size - old_bucket_size, new_bucket_size=new_bucket_size)
-    
+
     def list_files(self, bucket_name):
         return self.client.list_files(bucket_name)
 

@@ -1,12 +1,15 @@
-from src.models import *
-from fastapi import HTTPException
-from sqlmodel import Session, update, select
-from src.db import engine, get_db_user, insert_model_instance, delete_model_instance
-from src.file_storage_manager import FileStorageClient
-from src.settings import SETTINGS
-from src.security import get_password_hash
-from datetime import date
 import uuid
+from datetime import date
+
+from fastapi import HTTPException
+from sqlmodel import Session, select, update
+
+from src.db import (delete_model_instance, engine, get_db_user,
+                    insert_model_instance)
+from src.file_storage_manager import FileStorageClient
+from src.models import *
+from src.security import get_password_hash
+from src.settings import SETTINGS
 
 
 def create_user(user_dto: CreateUserDTO, fs_client: FileStorageClient) -> GetUserDTO:

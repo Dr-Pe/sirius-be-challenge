@@ -1,5 +1,7 @@
-from pydantic import BaseModel
 import datetime
+
+from pydantic import BaseModel
+
 
 class FileStorageUploadResponseDTO(BaseModel):
     file_size: int

@@ -1,8 +1,10 @@
-from fastapi.testclient import TestClient
-from src.settings import SETTINGS
-from src.main import app
-import tempfile
 import os
+import tempfile
+
+from fastapi.testclient import TestClient
+
+from src.main import app
+from src.settings import SETTINGS
 
 client = TestClient(app)
 
@@ -35,19 +37,6 @@ def test_post_existent_user():
     response = client.post(
         "/users/", json={"username": SETTINGS.default_admin_user, "password": SETTINGS.default_admin_password, "is_admin": True})
     assert response.status_code == 400
-
-
-# def test_post_new_admin_as_unauth():
-#     response = client.post("/users/", json={"username": "new-admin",
-#                            "password": "new_admin_password", "is_admin": True})
-#     assert response.status_code == 401  # TODO: This should fail
-
-
-# def test_post_new_admin_as_noadmin():
-#     token = _get_token(SETTINGS.default_non_admin_user, SETTINGS.default_non_admin_password)
-#     response = client.post("/users/", json={"username": "new_admin", "password": "new_admin_password",
-#                            "is_admin": True}, headers={"Authorization": f"Bearer {token}"})
-#     assert response.status_code == 403  # TODO: This should fail
 
 
 def test_post_then_delete_user():
