@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime as dt, timedelta, timezone
 from typing import Annotated
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -34,9 +34,9 @@ def authenticate_user(username: str, password: str):
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = dt.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(
+        expire = dt.now(
             timezone.utc) + timedelta(minutes=SETTINGS.access_token_expire_minutes)
 
     to_encode.update({"exp": expire})
