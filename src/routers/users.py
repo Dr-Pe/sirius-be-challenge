@@ -1,17 +1,20 @@
-from fastapi import APIRouter
 from typing import Annotated
-from fastapi import Depends, HTTPException
-from src.models import CreateUserDTO, GetUserDTO, User
+
+from fastapi import APIRouter, Depends, HTTPException
+
 from src.db import get_db_users
+from src.dependencies import fs_manager
+from src.models import CreateUserDTO, GetUserDTO, User
 from src.security import get_current_user
 from src.user_manager import create_user, destroy_user
-from src.dependencies import fs_manager
 
 router = APIRouter()
 
 
 @router.post("/users/")
 async def post_user(user_dto: CreateUserDTO) -> GetUserDTO:
+    if user_dto.is_admin:
+        raise HTTPException(status_code=400, detail="Cannot create admin users")
     return create_user(user_dto, fs_manager)
 
 
