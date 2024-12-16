@@ -89,7 +89,6 @@ class MinioS3Client:
         self.client.remove_bucket(bucket_name)
 
     def upload_file(self, bucket_name, filename, file, file_size):
-        self.create_bucket(bucket_name)
         self.client.put_object(bucket_name, filename, file, file_size)
 
     def download_file(self, bucket_name, file_path, filename):

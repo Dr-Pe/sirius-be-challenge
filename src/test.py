@@ -17,12 +17,13 @@ def _get_token(username, password):
     assert response.status_code == 200
     return response.json()["access_token"]
 
+
 def _post_then_delete_file(token, filepath, filename):
     response = client.post("/files/", params={"filepath": filepath,
                            "filename": filename}, headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
 
-    response = client.delete("/files/test_file.txt", headers={"Authorization": f"Bearer {token}"})
+    response = client.delete("/files/" + filename, headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
 
 
