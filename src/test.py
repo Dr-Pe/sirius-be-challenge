@@ -1,8 +1,8 @@
 from fastapi.testclient import TestClient
 from src.settings import SETTINGS
 from src.main import app
-from src.dependencies import fs_manager
-from io import BytesIO
+import tempfile
+import os
 
 client = TestClient(app)
 
@@ -49,14 +49,23 @@ def test_get_as_admin():
 
 
 def test_upload_then_delete_file_as_admin():
-    # TODO: I souldn't be using the 'private' of fs_client method here, but the public one, in order to test also the calculation of the new quota and daily usage
-    test_file = BytesIO(b"test file content")
-    fs_manager._upload_file(
-        SETTINGS.default_admin_user, "test_file.txt", test_file, test_file.getbuffer().nbytes)
-    
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        # Write some content to the file
+        temp_file.write(b"Some test content")
+        temp_file_path = temp_file.name  # Get the file path to use in the test
+
+    filename = os.path.basename(temp_file_path)
+
     response = client.post(
-        "/token", data={"username": SETTINGS.default_admin_user, "password": SETTINGS.default_admin_password})  
+        "/token", data={"username": SETTINGS.default_admin_user, "password": SETTINGS.default_admin_password})
     token = response.json()["access_token"]
+
+    response = client.post("/files/", params={"filepath": temp_file_path, "filename": filename},
+                           headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
 
     response = client.delete("/files/test_file.txt", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
+
+    if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
