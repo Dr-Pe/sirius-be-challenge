@@ -25,6 +25,10 @@ class FileStorageManager:
                 response = self._upload_file(client, bucket_name, filename, file, os.fstat(file.fileno()).st_size)
 
         return response
+    
+    def list_files(self, bucket_name):
+        for client in self.clients:
+            return client.list_files(bucket_name)
 
     def download_file(self, bucket_name, file_path, filename):
         for client in self.clients:
@@ -62,7 +66,10 @@ class FileStorageClient:
         self.client.upload_file(bucket_name, filename, file, file_size)
         new_bucket_size = self.client.get_bucket_size(bucket_name)
 
-        return FileStorageResponseDTO(file_size=new_bucket_size - old_bucket_size, new_bucket_size=new_bucket_size)
+        return FileStorageUploadResponseDTO(file_size=new_bucket_size - old_bucket_size, new_bucket_size=new_bucket_size)
+    
+    def list_files(self, bucket_name):
+        return self.client.list_files(bucket_name)
 
     def download_file(self, bucket_name, file_path, filename):
         self.client.download_file(bucket_name, file_path, filename)
@@ -90,6 +97,9 @@ class MinioS3Client:
 
     def upload_file(self, bucket_name, filename, file, file_size):
         self.client.put_object(bucket_name, filename, file, file_size)
+
+    def list_files(self, bucket_name):
+        return self.client.list_objects(bucket_name)
 
     def download_file(self, bucket_name, file_path, filename):
         self.client.fget_object(bucket_name, filename, file_path)

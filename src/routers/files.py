@@ -16,6 +16,9 @@ async def post_file(filepath: str, filename: str, current_user: Annotated[User, 
     else:
         raise HTTPException(status_code=400, detail="Quota exceeded for user")
 
+@router.post("/files/list")
+async def list_files(current_user: Annotated[User, Depends(get_current_user)]):
+    return UserManager(current_user).list_files(fs_manager)
 
 @router.get("/files/")
 async def get_file(filepath: str, filename: str, current_user: Annotated[User, Depends(get_current_user)]):

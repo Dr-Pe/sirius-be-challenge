@@ -24,6 +24,7 @@ def create_user(user_dto: CreateUserDTO, fs_client: FileStorageClient) -> GetUse
 
     return GetUserDTO.from_orm(user_in_db)
 
+
 def destroy_user(username: str, fs_client: FileStorageClient):
     user = get_db_user(username)
     if not user:
@@ -50,10 +51,13 @@ class UserManager:
             return fs_upload_response_dto
         else:
             return False
-        
+
+    def list_files(self, fs_manager):
+        return [FileStorageFileDTO.from_s3file_object(file) for file in fs_manager.list_files(self.user.bucket_name)]
+
     def download_file(self, fs_manager, file_path, filename):
         fs_manager.download_file(self.user.bucket_name, file_path, filename)
-        
+
     def delete_file(self, fs_manager, filename):
         new_quota = fs_manager.delete_file(self.user.bucket_name, filename)
         self._update_user_quota(new_quota)
