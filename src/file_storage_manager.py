@@ -14,6 +14,10 @@ class FileStorageManager:
         for client in self.clients:
             client.create_bucket(bucket_name)
 
+    def destroy_bucket(self, bucket_name):
+        for client in self.clients:
+            client.destroy_bucket(bucket_name)
+
     def upload_file(self, bucket_name, file_path, filename):
         response = None
         for client in self.clients:
@@ -50,6 +54,9 @@ class FileStorageClient:
     def create_bucket(self, bucket_name):
         self.client.create_bucket(bucket_name)
 
+    def destroy_bucket(self, bucket_name):
+        self.client.destroy_bucket(bucket_name)
+
     def upload_file(self, bucket_name, filename, file, file_size):
         old_bucket_size = self.client.get_bucket_size(bucket_name)
         self.client.upload_file(bucket_name, filename, file, file_size)
@@ -77,6 +84,9 @@ class MinioS3Client:
             print(f"Bucket {bucket_name} created")
         else:
             print(f"Bucket {bucket_name} already exists")
+
+    def destroy_bucket(self, bucket_name):
+        self.client.remove_bucket(bucket_name)
 
     def upload_file(self, bucket_name, filename, file, file_size):
         self.create_bucket(bucket_name)

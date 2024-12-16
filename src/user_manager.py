@@ -1,7 +1,7 @@
 from src.models import *
 from fastapi import HTTPException
 from sqlmodel import Session, update, select
-from src.db import engine, get_db_user, insert_model_instance
+from src.db import engine, get_db_user, insert_model_instance, delete_model_instance
 from src.file_storage_manager import FileStorageClient
 from src.settings import SETTINGS
 from src.security import get_password_hash
@@ -9,7 +9,7 @@ from datetime import date
 import uuid
 
 
-def create_user(user_dto: CreateUserDTO, fs_client: FileStorageClient):
+def create_user(user_dto: CreateUserDTO, fs_client: FileStorageClient) -> GetUserDTO:
     if get_db_user(user_dto.username):
         raise HTTPException(status_code=400, detail="User already exists")
 
@@ -22,7 +22,17 @@ def create_user(user_dto: CreateUserDTO, fs_client: FileStorageClient):
     insert_model_instance(user_in_db)
     fs_client.create_bucket(user_in_db.bucket_name)
 
-    return user_dto
+    return GetUserDTO.from_orm(user_in_db)
+
+def destroy_user(username: str, fs_client: FileStorageClient):
+    user = get_db_user(username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    delete_model_instance(user)
+    fs_client.destroy_bucket(user.bucket_name)
+
+    return {"detail": f"User {username} deleted"}
 
 
 class UserManager:

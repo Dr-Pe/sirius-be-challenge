@@ -18,6 +18,10 @@ def insert_model_instance(model: SQLModel):
         session.commit()
         session.refresh(model)
 
+def delete_model_instance(model: SQLModel):
+    with Session(engine) as session:
+        session.delete(model)
+        session.commit()
 
 def get_db_user(username: str):
     with Session(engine) as session:
