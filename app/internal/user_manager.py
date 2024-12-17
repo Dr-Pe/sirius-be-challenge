@@ -1,12 +1,10 @@
 import uuid
 from datetime import date
-
 from fastapi import File, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select, update
-
 from app.models import *
 from app.settings import SETTINGS
-
 from .db import (delete_model_instance, engine, get_db_user,
                  insert_model_instance)
 from .file_storage_manager import FileStorageClient, FileStorageManager
@@ -59,8 +57,8 @@ class UserManager:
     def list_files(self, fs_manager: FileStorageManager) -> list[FileStorageFileDTO]:
         return [FileStorageFileDTO.from_s3file_object(file) for file in fs_manager.list_files(self.user.bucket_name)]
 
-    def download_file(self, fs_manager: FileStorageManager, file_path: str, filename: str):
-        fs_manager.download_file(self.user.bucket_name, file_path, filename)
+    def download_file(self, fs_manager: FileStorageManager, filename: str) -> StreamingResponse:
+        return fs_manager.download_file(self.user.bucket_name, filename)
 
     def delete_file(self, fs_manager: FileStorageManager, filename: str):
         new_quota = fs_manager.delete_file(self.user.bucket_name, filename)

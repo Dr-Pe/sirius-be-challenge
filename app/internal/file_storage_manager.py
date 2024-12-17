@@ -1,6 +1,6 @@
 from fastapi import File, HTTPException
+from fastapi.responses import StreamingResponse
 from minio import Minio
-
 from app.models import *
 
 
@@ -34,11 +34,10 @@ class FileStorageManager:
         for client in self.clients:
             return client.list_files(bucket_name)
 
-    def download_file(self, bucket_name: str, file_path: str, filename: str):
+    def download_file(self, bucket_name: str, filename: str) -> StreamingResponse:
         for client in self.clients:
             try:
-                client.download_file(bucket_name, file_path, filename)
-                break
+                return StreamingResponse(client.download_file(bucket_name, filename), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={filename}"})
             except Exception as e:
                 print(e)
                 continue
@@ -75,8 +74,8 @@ class FileStorageClient:
     def list_files(self, bucket_name):
         return self.client.list_files(bucket_name)
 
-    def download_file(self, bucket_name, file_path, filename):
-        self.client.download_file(bucket_name, file_path, filename)
+    def download_file(self, bucket_name, filename):
+        return self.client.download_file(bucket_name, filename)
 
     def delete_file(self, bucket_name, filename):
         self.client.delete_file(bucket_name, filename)
@@ -105,8 +104,8 @@ class MinioS3Client:
     def list_files(self, bucket_name):
         return self.client.list_objects(bucket_name)
 
-    def download_file(self, bucket_name, file_path, filename):
-        self.client.fget_object(bucket_name, filename, file_path)
+    def download_file(self, bucket_name, filename):
+        return self.client.get_object(bucket_name, filename)
 
     def delete_file(self, bucket_name, filename):
         self.client.remove_object(bucket_name, filename)

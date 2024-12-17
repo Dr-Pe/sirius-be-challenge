@@ -1,7 +1,6 @@
 from typing import Annotated
-
-from fastapi import APIRouter, Depends, HTTPException, UploadFile
-
+from fastapi import APIRouter, Depends, UploadFile
+from fastapi.responses import StreamingResponse
 from app.internal.dependencies import fs_manager
 from app.internal.security import get_current_user
 from app.internal.user_manager import UserManager
@@ -17,9 +16,8 @@ async def post_file(file: UploadFile, current_user: Annotated[User, Depends(get_
 
 
 @router.get("/files/")
-async def get_file(filepath: str, filename: str, current_user: Annotated[User, Depends(get_current_user)]) -> dict:
-    UserManager(current_user).download_file(fs_manager, filepath, filename)
-    return {"detail": f"{filename} downloaded in {filepath}"}
+async def get_file(filename: str, current_user: Annotated[User, Depends(get_current_user)]) -> StreamingResponse:
+    return UserManager(current_user).download_file(fs_manager, filename)
 
 
 @router.delete("/files/{filename}")
