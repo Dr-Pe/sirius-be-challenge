@@ -28,6 +28,6 @@ async def delete_file(filename: str, current_user: Annotated[User, Depends(get_c
     return {"detail": f"{filename} deleted for {current_user.username}"}
 
 
-@router.post("/files/list")
+@router.get("/files/list")
 async def list_files(current_user: Annotated[User, Depends(get_current_user)]) -> list[FileStorageFileDTO]:
     return UserManager(current_user).list_files(fs_manager)

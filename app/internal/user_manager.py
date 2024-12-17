@@ -45,7 +45,7 @@ class UserManager:
     def __init__(self, user: User):
         self.user = user
 
-    async def upload_file(self, fs_manager: FileStorageManager, file: File) -> FileStorageUploadResponseDTO:
+    def upload_file(self, fs_manager: FileStorageManager, file: File) -> FileStorageUploadResponseDTO:
         if self._can_upload_file():
             fs_upload_response_dto = fs_manager.upload_file(
                 self.user.bucket_name, file)

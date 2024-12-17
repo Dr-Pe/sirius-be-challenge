@@ -1,5 +1,6 @@
+from fastapi import File, HTTPException
 from minio import Minio
-from fastapi import HTTPException, File
+
 from app.models import *
 
 
@@ -18,11 +19,12 @@ class FileStorageManager:
         for client in self.clients:
             client.destroy_bucket(bucket_name)
 
-    async def upload_file(self, bucket_name: str, file: File) -> FileStorageUploadResponseDTO:
+    def upload_file(self, bucket_name: str, file: File) -> FileStorageUploadResponseDTO:
         response = None
         for client in self.clients:
             try:
                 response = client.upload_file(bucket_name, file.filename, file.file, file.size)
+                file.file.seek(0)
             except Exception as e:
                 raise HTTPException(status_code=400, detail={"detail": str(e)})
 
