@@ -2,7 +2,7 @@ import os
 
 from minio import Minio
 
-from src.models import *
+from app.models import *
 
 
 class FileStorageManager:

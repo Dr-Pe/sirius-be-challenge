@@ -3,8 +3,8 @@ import tempfile
 
 from fastapi.testclient import TestClient
 
-from src.main import app
-from src.settings import SETTINGS
+from app.main import app
+from app.settings import SETTINGS
 
 client = TestClient(app)
 

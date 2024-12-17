@@ -1,7 +1,7 @@
 # Backend challenge: Cloud File Storage
 
 ## Service Goals
-- [] Users and authentication
-- [] Stats
-- [] Testing
-- [] Additional point
+- [X] Users and authentication
+- [X] Stats
+- [X] Testing
+- [X] Additional point

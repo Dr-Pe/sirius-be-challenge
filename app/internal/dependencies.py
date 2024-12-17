@@ -1,5 +1,5 @@
-from src.models import FileStorageClientParams
-from src.settings import SETTINGS
+from app.models import FileStorageClientParams
+from app.settings import SETTINGS
 
 from .file_storage_manager import FileStorageManager
 

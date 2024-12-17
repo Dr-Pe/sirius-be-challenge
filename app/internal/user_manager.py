@@ -4,8 +4,8 @@ from datetime import date
 from fastapi import HTTPException
 from sqlmodel import Session, select, update
 
-from src.models import *
-from src.settings import SETTINGS
+from app.models import *
+from app.settings import SETTINGS
 
 from .db import (delete_model_instance, engine, get_db_user,
                  insert_model_instance)

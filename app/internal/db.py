@@ -1,8 +1,8 @@
 from sqlalchemy.orm import joinedload
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from src.models import *
-from src.settings import SETTINGS
+from app.models import *
+from app.settings import SETTINGS
 
 sqlite_url = f"sqlite:///{SETTINGS.sqlite_filename}"
 connect_args = {"check_same_thread": False}

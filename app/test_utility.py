@@ -1,5 +1,5 @@
-from src.internal.dependencies import fs_manager
-from src.main import app
+from app.internal.dependencies import fs_manager
+from app.main import app
 
 
 def _get_all_bucket_names():
