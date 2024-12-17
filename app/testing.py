@@ -107,7 +107,7 @@ def test_post_then_delete_file():
     _post_then_delete_file(SETTINGS.default_non_admin_user, SETTINGS.default_non_admin_password, filename)
 
 
-def test_list_files():
+def test_list_files_n_stats():
     token = _get_token(SETTINGS.default_admin_user, SETTINGS.default_admin_password)
 
     response = client.get("/files/list", headers={"Authorization": f"Bearer {token}"})
@@ -130,4 +130,8 @@ def test_list_files():
     response = client.get("/files/list", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     assert len(response.json()) == cant_files
+
+    response = client.get("/stats/", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert len(response.json()) > 0 # At least the admin user, at least because of this test
 
