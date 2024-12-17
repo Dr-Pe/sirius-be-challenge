@@ -1,7 +1,7 @@
 import uuid
 from datetime import date
 
-from fastapi import HTTPException
+from fastapi import File, HTTPException
 from sqlmodel import Session, select, update
 
 from app.models import *
@@ -9,7 +9,7 @@ from app.settings import SETTINGS
 
 from .db import (delete_model_instance, engine, get_db_user,
                  insert_model_instance)
-from .file_storage_manager import FileStorageClient
+from .file_storage_manager import FileStorageClient, FileStorageManager
 from .security import get_password_hash
 
 
@@ -29,7 +29,7 @@ def create_user(user_dto: CreateUserDTO, fs_client: FileStorageClient) -> GetUse
     return GetUserDTO.from_orm(user_in_db)
 
 
-def destroy_user(username: str, fs_client: FileStorageClient):
+def destroy_user(username: str, fs_client: FileStorageClient) -> dict:
     user = get_db_user(username)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -45,7 +45,7 @@ class UserManager:
     def __init__(self, user: User):
         self.user = user
 
-    async def upload_file(self, fs_manager, file):
+    async def upload_file(self, fs_manager: FileStorageManager, file: File) -> FileStorageUploadResponseDTO:
         if self._can_upload_file():
             fs_upload_response_dto = fs_manager.upload_file(
                 self.user.bucket_name, file)
@@ -56,17 +56,17 @@ class UserManager:
         else:
             raise HTTPException(status_code=400, detail="Quota exceeded for user")
 
-    def list_files(self, fs_manager):
+    def list_files(self, fs_manager: FileStorageManager) -> list[FileStorageFileDTO]:
         return [FileStorageFileDTO.from_s3file_object(file) for file in fs_manager.list_files(self.user.bucket_name)]
 
-    def download_file(self, fs_manager, file_path, filename):
+    def download_file(self, fs_manager: FileStorageManager, file_path: str, filename: str):
         fs_manager.download_file(self.user.bucket_name, file_path, filename)
 
-    def delete_file(self, fs_manager, filename):
+    def delete_file(self, fs_manager: FileStorageManager, filename: str):
         new_quota = fs_manager.delete_file(self.user.bucket_name, filename)
         self._update_user_quota(new_quota)
 
-    def _can_upload_file(self):
+    def _can_upload_file(self) -> bool:
         return self.user.quota < SETTINGS.max_quota_in_gb
 
     def _update_user_quota(self, new_quota):

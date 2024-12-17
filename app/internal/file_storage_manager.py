@@ -1,7 +1,5 @@
-import os
-
 from minio import Minio
-from fastapi import HTTPException
+from fastapi import HTTPException, File
 from app.models import *
 
 
@@ -12,15 +10,15 @@ class FileStorageManager:
         for param in params:
             self.clients.append(FileStorageClient(param.endpoint, param.access_key, param.secret_key))
 
-    def create_bucket(self, bucket_name):
+    def create_bucket(self, bucket_name: str):
         for client in self.clients:
             client.create_bucket(bucket_name)
 
-    def destroy_bucket(self, bucket_name):
+    def destroy_bucket(self, bucket_name: str):
         for client in self.clients:
             client.destroy_bucket(bucket_name)
 
-    async def upload_file(self, bucket_name, file):
+    async def upload_file(self, bucket_name: str, file: File) -> FileStorageUploadResponseDTO:
         response = None
         for client in self.clients:
             try:
@@ -30,11 +28,11 @@ class FileStorageManager:
 
         return response
 
-    def list_files(self, bucket_name):
+    def list_files(self, bucket_name: str) -> list[FileStorageFileDTO]:
         for client in self.clients:
             return client.list_files(bucket_name)
 
-    def download_file(self, bucket_name, file_path, filename):
+    def download_file(self, bucket_name: str, file_path: str, filename: str):
         for client in self.clients:
             try:
                 client.download_file(bucket_name, file_path, filename)
@@ -43,7 +41,7 @@ class FileStorageManager:
                 print(e)
                 continue
 
-    def delete_file(self, bucket_name, filename):
+    def delete_file(self, bucket_name: str, filename: str) -> int:
         new_quota = None
         for client in self.clients:
             new_quota = client.delete_file(bucket_name, filename)

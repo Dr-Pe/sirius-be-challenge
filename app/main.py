@@ -3,9 +3,9 @@ from fastapi import FastAPI
 from app import routers
 from app.internal.db import create_db_and_tables, get_db_user
 from app.internal.dependencies import fs_manager
+from app.internal.user_manager import create_user
 from app.models import *
 from app.settings import SETTINGS
-from app.internal.user_manager import create_user
 
 app = FastAPI()
 
