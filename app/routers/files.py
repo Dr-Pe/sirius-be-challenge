@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
 
 from app.internal.dependencies import fs_manager
 from app.internal.security import get_current_user
@@ -11,11 +11,9 @@ router = APIRouter()
 
 
 @router.post("/files/")
-async def post_file(filepath: str, filename: str, current_user: Annotated[User, Depends(get_current_user)]) -> dict:
-    if UserManager(current_user).upload_file(fs_manager, filepath, filename):
-        return {"detail": f"{filepath} uploaded as {filename}"}
-    else:
-        raise HTTPException(status_code=400, detail="Quota exceeded for user")
+async def post_file(file: UploadFile, current_user: Annotated[User, Depends(get_current_user)]) -> dict:
+    UserManager(current_user).upload_file(fs_manager, file)
+    return {"detail": f"{file.filename} uploaded"}
 
 
 @router.get("/files/")

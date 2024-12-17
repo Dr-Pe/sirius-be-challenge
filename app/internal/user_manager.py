@@ -45,16 +45,16 @@ class UserManager:
     def __init__(self, user: User):
         self.user = user
 
-    def upload_file(self, fs_manager, file_path, filename):
+    async def upload_file(self, fs_manager, file):
         if self._can_upload_file():
             fs_upload_response_dto = fs_manager.upload_file(
-                self.user.bucket_name, file_path, filename)
+                self.user.bucket_name, file)
             self._update_user_quota(fs_upload_response_dto.new_bucket_size)
             self._update_user_daily_usage(fs_upload_response_dto.file_size)
 
             return fs_upload_response_dto
         else:
-            return False
+            raise HTTPException(status_code=400, detail="Quota exceeded for user")
 
     def list_files(self, fs_manager):
         return [FileStorageFileDTO.from_s3file_object(file) for file in fs_manager.list_files(self.user.bucket_name)]
