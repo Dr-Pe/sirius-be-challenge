@@ -2,10 +2,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from src.dependencies import fs_manager
+from src.internal.dependencies import fs_manager
+from src.internal.security import get_current_user
+from src.internal.user_manager import UserManager
 from src.models import *
-from src.security import get_current_user
-from src.user_manager import UserManager
 
 router = APIRouter()
 

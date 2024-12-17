@@ -2,11 +2,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from src.db import get_db_users
-from src.dependencies import fs_manager
+from src.internal.db import get_db_users
+from src.internal.dependencies import fs_manager
+from src.internal.security import get_current_user
+from src.internal.user_manager import create_user, destroy_user
 from src.models import CreateUserDTO, GetUserDTO, User
-from src.security import get_current_user
-from src.user_manager import create_user, destroy_user
 
 router = APIRouter()
 

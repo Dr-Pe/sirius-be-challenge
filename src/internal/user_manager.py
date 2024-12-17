@@ -4,12 +4,13 @@ from datetime import date
 from fastapi import HTTPException
 from sqlmodel import Session, select, update
 
-from src.db import (delete_model_instance, engine, get_db_user,
-                    insert_model_instance)
-from src.file_storage_manager import FileStorageClient
 from src.models import *
-from src.security import get_password_hash
 from src.settings import SETTINGS
+
+from .db import (delete_model_instance, engine, get_db_user,
+                 insert_model_instance)
+from .file_storage_manager import FileStorageClient
+from .security import get_password_hash
 
 
 def create_user(user_dto: CreateUserDTO, fs_client: FileStorageClient) -> GetUserDTO:

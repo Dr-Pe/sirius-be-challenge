@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 
 from src import routers
-from src.db import create_db_and_tables, get_db_user
-from src.dependencies import fs_manager
+from src.internal.db import create_db_and_tables, get_db_user
+from src.internal.dependencies import fs_manager
 from src.models import *
 from src.settings import SETTINGS
-from src.user_manager import create_user
+from src.internal.user_manager import create_user
 
 app = FastAPI()
 

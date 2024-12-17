@@ -1,6 +1,7 @@
-from src.file_storage_manager import FileStorageManager
 from src.models import FileStorageClientParams
 from src.settings import SETTINGS
+
+from .file_storage_manager import FileStorageManager
 
 fs_manager = FileStorageManager([
     FileStorageClientParams(endpoint=SETTINGS.minio_url,

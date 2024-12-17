@@ -3,10 +3,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.db import get_db_users_w_stats
+from src.internal.db import get_db_users_w_stats
+from src.internal.security import (authenticate_user, create_access_token,
+                                   get_current_user)
 from src.models import *
-from src.security import (authenticate_user, create_access_token,
-                          get_current_user)
 
 router = APIRouter()
 

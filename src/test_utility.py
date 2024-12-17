@@ -1,4 +1,4 @@
-from src.dependencies import fs_manager
+from src.internal.dependencies import fs_manager
 from src.main import app
 
 

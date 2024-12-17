@@ -8,9 +8,10 @@ from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 
-from src.db import get_db_user
 from src.models import *
 from src.settings import SETTINGS
+
+from .db import get_db_user
 
 ALGORITHM = "HS256"
 
